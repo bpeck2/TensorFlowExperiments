@@ -24,54 +24,36 @@ class abortTraining(tf.keras.callbacks.Callback):
                 print("Training has reached optimal loss value, stopping training to save time!")
                 self.model.stop_training = True
         
-        
-        
-# Import data from the fashion mnist dataset
-fashion_dataset = keras.datasets.fashion_mnist
 
-# Obtain training and testing images from the fashion dataset
-(train_images, train_labels), (validation_images, validation_labels) = fashion_dataset.load_data()
-
-# Just a reference to the types of categories images will be placed under
-target_names = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat',
-               'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot']
-
-########################## Pre-process Image Data #############################
-# Scale pixel values in range from 0 to 1
-train_images = train_images / 255.0
-validation_images = validation_images / 255.0
-
-
-# Reshape image sizes for consistency when building the model
-train_images = train_images.reshape(60000, 28, 28, 1)
-validation_images = validation_images.reshape(10000, 28, 28, 1)
-
-###############################################################################
-
-
-# Prompt user whether they want to use the already generated model
-print("Would you like to use a pre-generated model? (Y or N) (~25 min training time PER epoch unless you have a TPU)")
-prompt = input()
-prompt = prompt.strip()
-
-# If they do, load the file provided in the repo and begin testing validation set  
-if prompt == 'Y': 
-        model = load_model('fashion_trainingmodel_bpeck') # modify this path if you want to load your own file!
-        model.summary()
-        print("Using pre-generated model, begin testing validation set...")
-else: 
-    # Prompt user to save their own model if they want to save their training information
-    print("Would you like to save your own model? (Y or N)")
-    saveModelPrompt = input()
-    saveModelPrompt = saveModelPrompt.strip()
+# Import and load data from a dataset        
+def import_and_load_data():
+    # Import data from the fashion mnist dataset
+    fashion_dataset = keras.datasets.fashion_mnist
     
-    # Prompt user to name the file they want to save it as
-    if saveModelPrompt == 'Y':
-        print("Save As: ")
-        saveFile = input()
-        saveFile = saveFile.strip()
-        save = True
-        
+    # Obtain training and testing images from the fashion dataset
+    (train_images, train_labels), (validation_images, validation_labels) = fashion_dataset.load_data()
+    
+    # Just a reference to the types of categories images will be placed under
+    target_names = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat',
+                   'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot']
+    
+    return (train_images, train_labels), (validation_images, validation_labels)
+
+# Pre-process the image data
+def pre_process_data(train_images, validation_images):
+    # Scale pixel values in range from 0 to 1
+    train_images = train_images / 255.0
+    validation_images = validation_images / 255.0
+    
+  
+    # Reshape image sizes for consistency when building the model
+    train_images = train_images.reshape(60000, 28, 28, 1)
+    validation_images = validation_images.reshape(10000, 28, 28, 1)
+    
+    return train_images, validation_images
+   
+# Building and compile the model with Keras Sequential Layers        
+def build_and_compile_model():
     # Build the model, using convolutions (filtering) and pooling to resize as well as preserve distinct features of the images    
     model = keras.Sequential([
             
@@ -96,6 +78,43 @@ else:
 
     # Compile the model using Adam optimizer and loss function SCC
     model.compile(optimizer='Adam', loss='sparse_categorical_crossentropy')
+    
+    return model
+
+
+
+
+# Import the fashion dataset
+(train_images, train_labels), (validation_images, validation_labels) = import_and_load_data()
+
+# Pre-process Image Data
+train_images, validation_images = pre_process_data(train_images, validation_images)
+
+# Prompt user whether they want to use the already generated model
+print("Would you like to use a pre-generated model? (Y or N) (~25 min training time PER epoch unless you have a TPU)")
+prompt = input()
+prompt = prompt.strip()
+
+# If they do, load the file provided in the repo and begin testing validation set  
+if prompt == 'Y': 
+        model = load_model('fashion_trainingmodel_bpeck') # modify this path if you want to load your own file!
+        model.summary()
+        print("Using pre-generated model, begin testing validation set...")
+else: 
+    # Prompt user to save their own model if they want to save their training information
+    print("Would you like to save your own model? (Y or N)")
+    saveModelPrompt = input()
+    saveModelPrompt = saveModelPrompt.strip()
+    
+    # Prompt user to name the file they want to save it as
+    if saveModelPrompt == 'Y':
+        print("Save As: ")
+        saveFile = input()
+        saveFile = saveFile.strip()
+        save = True
+        
+    # Build and compile the model
+    model = build_and_compile_model()
     
     # Prepare a callback to stop training when loss is optimal
     abort = abortTraining()
