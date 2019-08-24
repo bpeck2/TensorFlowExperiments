@@ -20,7 +20,7 @@ threshold is achieved. This will save time for the user!
 """
 class abortTraining(tf.keras.callbacks.Callback):
         def on_epoch_end(self, epoch, logs={}):
-            if (logs.get('loss') < 0.3):
+            if (logs.get('loss') < 0.06):
                 print("Training has reached optimal loss value, stopping training to save time!")
                 self.model.stop_training = True
         
@@ -58,9 +58,9 @@ def build_and_compile_model():
     model = keras.Sequential([
             
                 # Convolution and pooling layers
-                tf.keras.layers.Conv2D(32, (3,3), input_shape=(28,28,1), activation='relu'),
+                tf.keras.layers.Conv2D(64, (3,3), input_shape=(28,28,1), activation='relu'),
                 tf.keras.layers.MaxPooling2D(2, 2),
-                tf.keras.layers.Conv2D(32, (3,3), input_shape=(28,28,1), activation='relu'),
+                tf.keras.layers.Conv2D(64, (3,3), input_shape=(28,28,1), activation='relu'),
                 tf.keras.layers.MaxPooling2D(2, 2),
                 
                 # Flatten the images into individual pixel values
@@ -91,7 +91,7 @@ def build_and_compile_model():
 train_images, validation_images = pre_process_data(train_images, validation_images)
 
 # Prompt user whether they want to use the already generated model
-print("Would you like to use a pre-generated model? (Y or N) (~25 min training time PER epoch unless you have a TPU)")
+print("Would you like to use a pre-generated model? (Y or N)")
 prompt = input()
 prompt = prompt.strip()
 
@@ -105,6 +105,8 @@ else:
     print("Would you like to save your own model? (Y or N)")
     saveModelPrompt = input()
     saveModelPrompt = saveModelPrompt.strip()
+
+    save = False
     
     # Prompt user to name the file they want to save it as
     if saveModelPrompt == 'Y':
@@ -119,8 +121,8 @@ else:
     # Prepare a callback to stop training when loss is optimal
     abort = abortTraining()
     
-    # Begin training the data, with 5 epochs by default (1 hour training with CPU)
-    model.fit(train_images, train_labels, epochs=5, callbacks=[abort])
+    # Begin training the data, with 5 epochs by default
+    model.fit(train_images, train_labels, epochs=1, callbacks=[abort])
                 
     # Save the file to the local directory if the user wants to save their model
     if save:
