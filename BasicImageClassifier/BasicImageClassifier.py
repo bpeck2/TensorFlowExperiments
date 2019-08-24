@@ -20,7 +20,7 @@ threshold is achieved. This will save time for the user!
 """
 class abortTraining(tf.keras.callbacks.Callback):
         def on_epoch_end(self, epoch, logs={}):
-            if (logs.get('loss') < 0.06):
+            if (logs.get('loss') < 0.3):
                 print("Training has reached optimal loss value, stopping training to save time!")
                 self.model.stop_training = True
         
@@ -122,7 +122,7 @@ else:
     abort = abortTraining()
     
     # Begin training the data, with 5 epochs by default
-    model.fit(train_images, train_labels, epochs=1, callbacks=[abort])
+    model.fit(train_images, train_labels, epochs=5, callbacks=[abort])
                 
     # Save the file to the local directory if the user wants to save their model
     if save:
