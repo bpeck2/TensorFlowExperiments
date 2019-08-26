@@ -77,11 +77,9 @@ def build_and_compile_model():
     model.summary()
 
     # Compile the model using Adam optimizer and loss function SCC
-    model.compile(optimizer='Adam', loss='sparse_categorical_crossentropy')
+    model.compile(optimizer='Adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
     
     return model
-
-
 
 
 # Import the fashion dataset
@@ -122,7 +120,7 @@ else:
     abort = abortTraining()
     
     # Begin training the data, with 5 epochs by default
-    model.fit(train_images, train_labels, epochs=1, callbacks=[abort])
+    model.fit(train_images, train_labels, epochs=5, callbacks=[abort])
                 
     # Save the file to the local directory if the user wants to save their model
     if save:
@@ -131,11 +129,11 @@ else:
 # Get the loss from testing 10,000 validation images/labels
 test_loss = model.evaluate(validation_images, validation_labels)
 
-# Accuracy is the complement of the loss
-test_acc = 1 - test_loss
+# Get accuracy data from the evaluation
+test_acc = test_loss[1];
 
 # Format for neatness
-test_acc = format(test_acc, ".2f")
+test_acc = format(test_acc, ".2%")
 
 # Print out the accuracy of the testing data with our model
 print("Accuracy of the testing data: " + test_acc)
