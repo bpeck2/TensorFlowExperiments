@@ -45,8 +45,8 @@ def build_compile__run_model(model_base, numEpochs, trainingSet, validationSet):
 
     model.summary()
 
-    steps_per_epoch = 200
-    validation_steps = 200
+    steps_per_epoch = training.n
+    validation_steps = validationSet.n
 
     model.fit_generator(trainingSet,steps_per_epoch=steps_per_epoch ,epochs=numEpochs, workers=4, validation_data=validationSet,validation_steps=validation_steps)
     
@@ -60,7 +60,7 @@ print(tf.test.is_gpu_available())
 root_dir, cats_set, dogs_set, directory_set = load_data()
 
 size_image = 160
-batch_size = 40
+batch_size = 50
 
 
 if (override):
@@ -82,7 +82,7 @@ else:
         model_base.trainable=False
         model_base.summary()
 
-        model = build_compile__run_model(model_base, 15, train_generation, validate_generation)
+        model = build_compile__run_model(model_base, 3, train_generation, validate_generation)
 
 
 
@@ -98,12 +98,12 @@ img = img/255
 
 img = np.expand_dims(img, axis=0)
 
-prediction = model.predict(img, steps=1)
-if(prediction[:,:]>0.5):
-    value ='Dog :%1.2f'%(prediction[0,0])
+predict = model.predict(img, steps=1)
+if(predict[:,:]>0.5):
+    value ='Dog :%1.2f'%(predict[0,0])
     plt.text(20, 62,value,color='red',fontsize=18,bbox=dict(facecolor='white',alpha=0.8))
 else:
-    value ='Cat :%1.2f'%(1.0-prediction[0,0])
+    value ='Cat :%1.2f'%(1.0-predict[0,0])
     plt.text(20, 62,value,color='red',fontsize=18,bbox=dict(facecolor='white',alpha=0.8))
 
 
